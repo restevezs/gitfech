@@ -57,7 +57,7 @@ def edited_lines(idcommit):
             number_directory_changed+=1
 
 
-    #Here the for would help to count all the lines that were edited, and all the files that were edited
+    #Here the for  would help to count all the lines that were edited, and all the files that were edited
     count_of_files_edited_add =  count_of_files_edited + number_directory_changed
     count_of_lines_edited_addmax = count_of_files_edited_add-count_of_files_edited - number_directory_changed
 
