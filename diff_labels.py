@@ -16,25 +16,24 @@ import json
 
 
 parser = argparse.ArgumentParser(description='a tool to obtain the git diff and use the information to get a label depending on the changed files')
-parser.add_argument('-bb','--branch_base',  type=str, default="",
-                    help='branch_base.')
+
 parser.add_argument('-id','--id_commit', type=str,default="",
                     help="Id of the commit")
 #These arguments  will be taken from the pipeline and they are the name of the base branch and the commit id
 
 def main():
     args = parser.parse_args()
-    edited_lines(args.branch_base, args.id_commit)
+    edited_lines( args.id_commit)
 
-def edited_lines(basebr,idcommit):
+def edited_lines(idcommit):
     label_fromsjson = []
-    Openjson = open(".ci/a2e_scripts/labels.json", "r")
+    Openjson = open("labels.json", "r")
     data_json= json.loads(Openjson.read())
     for i in data_json['labels']:
        label_fromsjson.append(i)
     repo = Repo()
-    d= repo.git.diff(basebr, idcommit)
-    diff_lines= d.split('\n')
+    d= repo.git.merge(idcommit)
+    merges_lines= d.split('\n')
     found_first = False
     count_of_files_edited = 0
     count_of_files_edited_addmax = 0
@@ -46,7 +45,9 @@ def edited_lines(basebr,idcommit):
     Biggestsvalue =[int(i) for i in Biggestsvalue]
     Minorvalue= data_json['labels'][0]['linesChanged'].split("-")
     Minorvalue = [int(i) for i in Minorvalue]
-    for lines in diff_lines:
+    print  (merges_lines)
+    print(type(merges_lines))
+    for lines in merges_lines:
 
         if (lines.startswith('+') or lines.startswith('-')):
             count_of_files_edited_add += 1
@@ -85,7 +86,7 @@ def edited_lines(basebr,idcommit):
 
 
     f = open('diff_File.txt', 'w+')
-    for lines in diff_lines:
+    for lines in merges_lines:
         if (lines.startswith('----') or lines.startswith('+---') or lines.startswith('-+++') or lines.startswith('++++') or lines.startswith('+++ ') ):
 
             f.write(lines.rsplit(' ', 1)[-1])
