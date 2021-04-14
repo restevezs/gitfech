@@ -31,13 +31,18 @@ def edited_lines(idcommit):
     data_json= json.loads(Openjson.read())
     for i in data_json['labels']:
        label_fromsjson.append(i)
+       """
     repo = Repo()
     d= repo.git.merge(idcommit)
     merges_lines= d.split('\n')
+       """
+    merges_lines = ["Merge made by the 'recursive' strategy.", ' rafa.txt     | 1 +', ' soyeldos.txt | 1 -', ' 2 files changed, 1 insertion(+), 1 deletion(-)']
     found_first = False
     count_of_files_edited = 0
     count_of_files_edited_addmax = 0
     count_of_files_edited_add = 0
+    count_of_lines_edited_del = 0
+    count_of_lines_edited_add = 0
     number_directory_changed= 0
     count = len(data_json['labels'])
     a= data_json['labels'][count -1]['linesChanged']
@@ -49,13 +54,20 @@ def edited_lines(idcommit):
     print(type(merges_lines))
     for lines in merges_lines:
 
-        if (lines.startswith('+') or lines.startswith('-')):
-            count_of_files_edited_add += 1
-        if lines.startswith('+++ '):
-            count_of_files_edited+= 1
-        if (lines.startswith('----') or lines.startswith('+---') or lines.startswith('-+++') or lines.startswith('++++')):
-            number_directory_changed+=1
-
+        if ("files changed" in lines):            
+            lines.rsplit(',')
+            count_of_files_edited_add = re.findall(r'\d+ (?=files changed)',lines)
+            count_of_files_edited_add = count_of_files_edited_add[0]
+            count_of_files_edited_add = int(count_of_files_edited_add)
+            count_of_lines_edited_del = re.findall(r'\d+ (?=deletion)',lines)
+            count_of_lines_edited_del = count_of_lines_edited_del[0]
+            count_of_lines_edited_del = int(count_of_lines_edited_del)
+            count_of_lines_edited_add = re.findall(r'\d+ (?=deletion)',lines)
+            count_of_lines_edited_add = count_of_lines_edited_add[0]
+            count_of_lines_edited_add = int(count_of_lines_edited_add)
+            
+            
+           
 
 
     #Here the for  would help to count all the lines that were edited, and all the files that were edited
@@ -64,13 +76,13 @@ def edited_lines(idcommit):
 
     #Here the for would help to count all the lines that were edited, and all the files that were edited
 
-    count_of_files_edited_add =  count_of_files_edited + number_directory_changed
-    count_of_lines_edited_addmax = count_of_files_edited_add-count_of_files_edited - number_directory_changed
+    count_of_files_edited_addmax =  count_of_files_edited_add 
+    count_of_lines_edited_addmax = count_of_lines_edited_add + count_of_lines_edited_del
 
 
     for x in range(count) :
 
-        if ((data_json['labels'][x]['linesChanged'])!= a and count_of_files_edited_add == (min(Minorvalue))):
+        if ((data_json['labels'][x]['linesChanged'])!= a and count_of_files_edited_addmax == (min(Minorvalue))):
             data_json['labels'][x]['linesChanged']= data_json['labels'][x]['linesChanged'].split("-")
             data_json['labels'][x]['linesChanged']= [int(i) for i in data_json['labels'][x]['linesChanged']]
             if ((min(data_json['labels'][x]['linesChanged'])) <= count_of_lines_edited_addmax <= (max(data_json['labels'][x]['linesChanged']))):
@@ -83,19 +95,19 @@ def edited_lines(idcommit):
         if (data_json['labels'][x]['FilesChanged']!= '1' and data_json['labels'][x]['FilesChanged'] != data_json['labels'][count-1]['FilesChanged'] ):
             data_json['labels'][x]['FilesChanged']= data_json['labels'][x]['FilesChanged'].split("-")
             data_json['labels'][x]['FilesChanged']= [int(i) for i in data_json['labels'][x]['FilesChanged']]
-            if ((min(data_json['labels'][x]['FilesChanged'])) <= count_of_files_edited_add <= (max(data_json['labels'][x]['FilesChanged']))):
+            if ((min(data_json['labels'][x]['FilesChanged'])) <= count_of_files_edited_addmax <= (max(data_json['labels'][x]['FilesChanged']))):
 
                 print ("Label:",data_json['labels'][x]['label'])
-        if (count_of_files_edited_add > (max(Biggestsvalue)) and data_json['labels'][x]['FilesChanged']!= '1' and x== count-1 ):
+        if (count_of_files_edited_addmax > (max(Biggestsvalue)) and data_json['labels'][x]['FilesChanged']!= '1' and x== count-1 ):
             print("Label:",data_json['labels'][count-1]['label'])
 
 
 
     f = open('diff_File.txt', 'w+')
     for lines in merges_lines:
-        if (lines.startswith('----') or lines.startswith('+---') or lines.startswith('-+++') or lines.startswith('++++') or lines.startswith('+++ ') ):
+        if (lines.endswith('-') or lines.endswith('+')) :
 
-            f.write(lines.rsplit(' ', 1)[-1])
+            f.write(lines.rsplit('|')[0])
             f.write('\n')
 
     f.close()
