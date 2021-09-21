@@ -1,9 +1,9 @@
-# File       : diff_labels.py
-# Author     : Rafael Estevez
-# Company    : A2e technologies
-# Created    : 16/03/2021
-# -----------------------------------------------------------------------------
-# Description: a script that analyzes the te output of git-diff and returns based on a files.md_FPGA of labels the corresponding label
+# File        : diff_labels.py
+# Author      : Rafael Estevez
+# Company     : A2e technologies
+# Created     : 16/03/2021
+# ---------- -------------------------------------------------------------------
+# Description : a script that analyzes the te output of git-diff and returns based on a files.md_FPGA of labels the corresponding label
 # --------------------------------------------------------------
 
 import os
@@ -56,12 +56,13 @@ def variants_collected(Variant_to_compile):
 def edited_lines(idcommit):
 
     label_fromsjson = []
-    Openjson = open(".ci/a2e_scripts/labels.json", "r")
+    Openjson = open("labels.json", "r")
     data_json = json.loads(Openjson.read())
     for i in data_json['labels']:
         label_fromsjson.append(i)
     repo = Repo()
     d = repo.git.merge(idcommit)
+    print(d)
     merges_lines = d.split('\n')
     print("\n")
     found_first = False

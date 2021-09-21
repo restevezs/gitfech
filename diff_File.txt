@@ -1,2 +1,0 @@
- rafa.txt     
- soyeldos.txt 
